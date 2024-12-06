@@ -13,6 +13,6 @@ export class CreateTerrainDto {
 
   @IsArray()
   @ArrayMinSize(3)
-  @ValidateNested({ each: true })
+  // @ValidateNested({ each: true })
   shape: [number, number][];
 }
