@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateTerrainDto } from './dto/create-terrain.dto';
 import { UpdateTerrainDto } from './dto/update-terrain.dto';
 import { Terrain } from './entities/terrain.entity';
+import { PrismaService } from 'src/prisma.service';
 
 let TERRAINS: Terrain[] = [
   {
@@ -112,39 +113,48 @@ let TERRAINS: Terrain[] = [
 
 @Injectable()
 export class TerrainsService {
+  constructor(private prisma: PrismaService) {}
   create(createTerrainDto: CreateTerrainDto) {
-    const terrain: Terrain = {
-      id: Math.random().toString(),
-      ...createTerrainDto,
-    };
-    TERRAINS.push(terrain);
-    return `Created terrain: ${JSON.stringify(terrain)}`;
+    // const terrain: Terrain = {
+    //   id: Math.random().toString(),
+    //   ...createTerrainDto,
+    // };
+    // TERRAINS.push(terrain);
+    // return `Created terrain: ${JSON.stringify(terrain)}`;
+    return this.prisma.terrain.create({ data: createTerrainDto });
   }
 
   findAll() {
-    const terrains = [...TERRAINS];
-    return terrains;
+    // const terrains = [...TERRAINS];
+    // return terrains;
+    return this.prisma.terrain.findMany();
   }
 
   findOne(id: string) {
-    const foundedTerrain = TERRAINS.find((t) => t.id === id);
-    return foundedTerrain;
+    // const foundedTerrain = TERRAINS.find((t) => t.id === id);
+    // return foundedTerrain;
+    return this.prisma.terrain.findFirst({ where: { id: id } });
   }
 
   update(id: string, updateTerrainDto: UpdateTerrainDto) {
-    TERRAINS = TERRAINS.map((t) => {
-      if (t.id === id) {
-        t.name = updateTerrainDto.name;
-        t.shape = updateTerrainDto.shape;
-      }
-      return t;
-    });
+    // TERRAINS = TERRAINS.map((t) => {
+    //   if (t.id === id) {
+    //     t.name = updateTerrainDto.name;
+    //     t.shape = updateTerrainDto.shape;
+    //   }
+    //   return t;
+    // });
 
-    return `Updated terrain: ${JSON.stringify(updateTerrainDto)}`;
+    // return `Updated terrain: ${JSON.stringify(updateTerrainDto)}`;
+    return this.prisma.terrain.update({
+      where: { id: id },
+      data: updateTerrainDto,
+    });
   }
 
   remove(id: string) {
-    TERRAINS = TERRAINS.filter((t) => t.id !== id);
-    return `Deleted terrain with id: ${id}.`;
+    // TERRAINS = TERRAINS.filter((t) => t.id !== id);
+    // return `Deleted terrain with id: ${id}.`;
+    return this.prisma.terrain.delete({ where: { id: id } });
   }
 }

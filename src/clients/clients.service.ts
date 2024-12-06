@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
 import { Client } from './entities/client.entity';
+import { PrismaService } from 'src/prisma.service';
 
 let CLIENTS: Client[] = [
   {
@@ -50,41 +51,52 @@ let CLIENTS: Client[] = [
 
 @Injectable()
 export class ClientsService {
+  constructor(private prisma: PrismaService) {}
+
   create(createClientDto: CreateClientDto) {
-    const client: Client = {
-      id: Math.random().toString(6),
-      ...createClientDto,
-    };
-    CLIENTS.push(client);
-    return `Created client: ${JSON.stringify(client)}`;
+    // const client: Client = {
+    //   id: Math.random().toString(6),
+    //   ...createClientDto,
+    // };
+    // CLIENTS.push(client);
+    // return `Created client: ${JSON.stringify(client)}`;
+
+    return this.prisma.client.create({ data: createClientDto });
   }
 
   findAll() {
-    const clients = [...CLIENTS];
-    return clients;
+    // const clients = [...CLIENTS];
+    // return clients;
+    return this.prisma.client.findMany();
   }
 
   findOne(id: string) {
-    const foundedClient = CLIENTS.find((c) => c.id === id);
-    return foundedClient;
+    // const foundedClient = CLIENTS.find((c) => c.id === id);
+    // return foundedClient;
+    return this.prisma.client.findFirst({ where: { id: id } });
   }
 
   update(id: string, updateClientDto: UpdateClientDto) {
-    CLIENTS = CLIENTS.map((c) => {
-      if (c.id === id) {
-        c.name = updateClientDto.name;
-        c.coordenates = updateClientDto.coordenates;
-        c.lastname = updateClientDto.lastname;
-        c.username = updateClientDto.username;
-      }
-      return c;
-    });
+    // CLIENTS = CLIENTS.map((c) => {
+    //   if (c.id === id) {
+    //     c.name = updateClientDto.name;
+    //     c.coordenates = updateClientDto.coordenates;
+    //     c.lastname = updateClientDto.lastname;
+    //     c.username = updateClientDto.username;
+    //   }
+    //   return c;
+    // });
 
-    return `Updated client: ${JSON.stringify(updateClientDto)}`;
+    // return `Updated client: ${JSON.stringify(updateClientDto)}`;
+    return this.prisma.client.update({
+      where: { id: id },
+      data: updateClientDto,
+    });
   }
 
   remove(id: string) {
-    CLIENTS = CLIENTS.filter((c) => c.id !== id);
-    return `Deleted client with id: ${id}.`;
+    // CLIENTS = CLIENTS.filter((c) => c.id !== id);
+    // return `Deleted client with id: ${id}.`;
+    return this.prisma.client.delete({ where: { id: id } });
   }
 }
